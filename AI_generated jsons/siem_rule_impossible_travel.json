@@ -1,0 +1,74 @@
+{
+  "policy.name": "Authentication - Detected Login from Two IPs with Impossible Travel Time",
+  "policy.type": "Log",
+  "policy.tags": [
+    "Default",
+    "Security",
+    "Authentication",
+    "Impossible Travel",
+    "Geolocation"
+  ],
+  "policy.scheduled": "no",
+  "policy.context": {
+    "entity.type": "event.source.type",
+    "entities": [
+      "Application"
+    ],
+    "data.point": "message",
+    "aggregator": "count",
+    "operator": ">=",
+    "value": 1,
+    "trigger.mode": "individual",
+    "evaluation.window": 60,
+    "evaluation.window.unit": "minute",
+    "evaluation.frequency": 60,
+    "evaluation.frequency.unit": "minute",
+    "policy.severity": "CRITICAL",
+    "policy.result.by": [
+      "event.source"
+    ],
+    "policy.trigger.occurrences": 1,
+    "policy.auto.clear.timer.seconds": 0,
+    "filters": {
+      "data.filter": {
+        "operator": "and",
+        "filter": "include",
+        "groups": [
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "@bottomline.mainframe.activity.resource.code",
+                "operator": "=",
+                "value": "login"
+              },
+              {
+                "operand": "@bottomline.mainframe.activity.usr.id",
+                "operator": "contains",
+                "value": "*"
+              },
+              {
+                "operand": "@network.client.geoip",
+                "operator": "contains",
+                "value": "*"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "policy.email.notification.recipients": [],
+  "policy.renotify": "yes",
+  "policy.monitor.polling.failed.notification.timer.seconds": 0,
+  "policy.monitor.polling.failed.notification.status": "no",
+  "policy.renotification.timer.seconds": 0,
+  "policy.actions": {},
+  "policy.suppress.action": "no",
+  "policy.archived": "no",
+  "policy.creation.time": 1735188945,
+  "policy.state": "no",
+  "_type": "1",
+  "id": 10000000000035
+}

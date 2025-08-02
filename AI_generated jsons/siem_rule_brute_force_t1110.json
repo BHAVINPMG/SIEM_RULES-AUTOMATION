@@ -1,0 +1,75 @@
+{
+  "policy.name": "Credential Access - Brute Force Attack Detected (T1110)",
+  "policy.type": "Log",
+  "policy.tags": [
+    "Default",
+    "Security",
+    "Authentication",
+    "T1110",
+    "TA0006",
+    "Windows"
+  ],
+  "policy.scheduled": "no",
+  "policy.context": {
+    "entity.type": "event.source.type",
+    "entities": [
+      "Windows"
+    ],
+    "data.point": "message",
+    "aggregator": "count",
+    "operator": ">=",
+    "value": 10,
+    "trigger.mode": "individual",
+    "evaluation.window": 15,
+    "evaluation.window.unit": "minute",
+    "evaluation.frequency": 15,
+    "evaluation.frequency.unit": "minute",
+    "policy.severity": "MAJOR",
+    "policy.result.by": [
+      "event.source"
+    ],
+    "policy.trigger.occurrences": 1,
+    "policy.auto.clear.timer.seconds": 0,
+    "filters": {
+      "data.filter": {
+        "operator": "and",
+        "filter": "include",
+        "groups": [
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "@ocsf.class_uid",
+                "operator": "=",
+                "value": "3002"
+              },
+              {
+                "operand": "@ocsf.activity_name",
+                "operator": "=",
+                "value": "Logon"
+              },
+              {
+                "operand": "@ocsf.status",
+                "operator": "=",
+                "value": "Failure"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "policy.email.notification.recipients": [],
+  "policy.renotify": "yes",
+  "policy.monitor.polling.failed.notification.timer.seconds": 0,
+  "policy.monitor.polling.failed.notification.status": "no",
+  "policy.renotification.timer.seconds": 0,
+  "policy.actions": {},
+  "policy.suppress.action": "no",
+  "policy.archived": "no",
+  "policy.creation.time": 1735188945,
+  "policy.state": "no",
+  "_type": "1",
+  "id": 10000000000032
+}

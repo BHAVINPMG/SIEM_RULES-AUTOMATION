@@ -1,0 +1,369 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SIEM Rule Schema",
+  "description": "Schema for SIEM policy rules",
+  "type": "object",
+  "properties": {
+    "policy.name": {
+      "type": "string",
+      "description": "Name of the policy"
+    },
+    "policy.type": {
+      "type": "string",
+      "enum": ["Log"],
+      "description": "Policy type - always Log"
+    },
+    "policy.tags": {  
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Tags for categorizing the policy"
+    },
+    "policy.scheduled": {
+      "type": "string",
+      "enum": ["no"],
+      "description": "Scheduling status - always no"
+    },
+    "policy.context": {
+      "type": "object",
+      "properties": {
+        "entity.type": {
+          "type": "string",
+          "enum": ["event.source.type", "group", "event.source"],
+          "description": "Type of entity to monitor"
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of entities to monitor"
+        },
+        "data.point": {
+          "type": "string",
+          "enum": ["event.source", "event.category", "message", "event.source.type", "event.severity"],
+          "description": "Data point to monitor"
+        },
+        "aggregator": {
+          "type": "string",
+          "enum": ["count", "sum", "avg"],
+          "description": "Aggregation method. When data.point is event.source, event.category, message, event.source.type, or event.severity, only 'count' is allowed"
+        },
+        "operator": {
+          "type": "string",
+          "enum": ["=", ">=", "<=", ">", "<", "contains", "in", "start with", "end with", "range"],
+          "description": "Comparison operator. For 'range' operator, use string format 'min#max' (e.g., '10#20')"
+        },
+        "value": {
+          "oneOf": [
+            {"type": "number"},
+            {"type": "string"},
+            {"type": "boolean"}
+          ],
+          "description": "Threshold value for the operator. For 'range' operator, use string format 'min#max' (e.g., '10#20')"
+        },
+        "trigger.mode": {
+          "type": "string",
+          "enum": ["individual"],
+          "description": "Trigger mode - always individual"
+        },
+        "evaluation.window": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10080,
+          "description": "Evaluation window size (maximum 7 days = 10080 minutes)"
+        },
+        "evaluation.window.unit": {
+          "type": "string",
+          "enum": ["minute", "hour", "day"],
+          "description": "Unit for evaluation window"
+        },
+        "evaluation.frequency": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 10080,
+          "description": "Evaluation frequency (maximum 7 days = 10080 minutes)"
+        },
+        "evaluation.frequency.unit": {
+          "type": "string",
+          "enum": ["minute", "hour", "day"],
+          "description": "Unit for evaluation frequency"
+        },
+        "policy.severity": {
+          "type": "string",
+          "enum": ["WARNING", "MAJOR", "CRITICAL"],
+          "description": "Severity level of the policy"
+        },
+        "policy.result.by": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["event.severity", "event.source.type", "event.category", "event.source"]
+          },
+          "description": "Fields to group results by"
+        },
+                 "policy.trigger.occurrences": {
+           "type": "number",
+           "const": 1,
+           "description": "Number of occurrences required to trigger - always 1"
+         },
+                 "policy.auto.clear.timer.seconds": {
+           "type": "number",
+           "const": 0,
+           "description": "Auto-clear timer in seconds - always 0"
+         },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "data.filter": {
+              "type": "object",
+              "properties": {
+                "operator": {
+                  "type": "string",
+                  "enum": [
+                    "and",
+                    "or"
+                  ],
+                  "description": "Logical operators: and (all conditions must be true), or (any condition can be true)"
+                },
+                "filter": {
+                  "type": "string",
+                  "enum": [
+                    "include",
+                    "exclude"
+                  ],
+                  "description": "Filter types: include (include records that match), exclude (exclude records that match)"
+                },
+                "groups": {
+                  "type": "array",
+                  "maxItems": 3,
+                  "description": "Maximum 3 groups per data filter",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "filter": {
+                        "type": "string",
+                        "enum": [
+                          "include",
+                          "exclude"
+                        ],
+                        "description": "Filter types: include (include records that match), exclude (exclude records that match)"
+                      },
+                      "operator": {
+                        "type": "string",
+                        "enum": [
+                          "and",
+                          "or"
+                        ],
+                        "description": "Logical operators: and (all conditions must be true), or (any condition can be true)"
+                      },
+                      "conditions": {
+                        "type": "array",
+                        "maxItems": 3,
+                        "description": "Maximum 3 conditions per group",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "operand": {
+                              "type": "string"
+                            },
+                                                         "operator": {
+                               "type": "string",
+                               "enum": [
+                                 "=",
+                                 "contains",
+                                 "in",
+                                 "start with",
+                                 "end with"
+                               ],
+                               "description": "Filter condition operators: = (exact match), contains (contains value), in (value in list), start with (starts with value), end with (ends with value)"
+                             },
+                            "value": {
+                              "type": [
+                                "string",
+                                "number",
+                                "boolean"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "operand",
+                            "operator",
+                            "value"
+                          ]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "required": [
+        "entity.type",
+        "entities",
+        "data.point",
+        "aggregator",
+        "operator",
+        "value",
+        "trigger.mode",
+        "evaluation.window",
+        "evaluation.window.unit",
+        "evaluation.frequency",
+        "evaluation.frequency.unit",
+        "policy.severity",
+        "policy.result.by",
+        "policy.trigger.occurrences",
+        "policy.auto.clear.timer.seconds",
+        "filters"
+      ]
+    },
+         "policy.email.notification.recipients": {
+       "type": "array",
+       "const": [],
+       "description": "Email notification recipients - always empty array"
+     },
+         "policy.renotify": {
+       "type": "string",
+       "const": "yes",
+       "description": "Whether to renotify - always yes"
+     },
+         "policy.monitor.polling.failed.notification.timer.seconds": {
+       "type": "number",
+       "const": 0,
+       "description": "Timer for failed polling notifications - always 0"
+     },
+         "policy.monitor.polling.failed.notification.status": {
+       "type": "string",
+       "const": "no",
+       "description": "Status for failed polling notifications - always no"
+     },
+         "policy.renotification.timer.seconds": {
+       "type": "number",
+       "const": 0,
+       "description": "Renotification timer in seconds - always 0"
+     },
+         "policy.actions": {
+       "type": "object",
+       "const": {},
+       "description": "Actions to take when policy triggers - always empty object"
+     },
+         "policy.suppress.action": {
+       "type": "string",
+       "const": "no",
+       "description": "Whether to suppress actions - always no"
+     },
+         "policy.archived": {
+       "type": "string",
+       "const": "no",
+       "description": "Whether policy is archived - always no"
+     },
+    "policy.creation.time": {
+      "type": "number",
+      "description": "Unix timestamp of policy creation"
+    },
+         "policy.state": {
+       "type": "string",
+       "const": "no",
+       "description": "Policy state - always no"
+     },
+    "_type": {
+      "type": "string",
+      "enum": ["1"],
+      "description": "Type identifier"
+    },
+         "id": {
+       "type": "number",
+       "pattern": "^100000000000[0-9]{2}$",
+       "description": "Unique identifier for the policy (format: 100000000000XX)"
+     }
+  },
+  "required": [
+    "policy.name",
+    "policy.type",
+    "policy.tags",
+    "policy.scheduled",
+    "policy.context",
+    "policy.email.notification.recipients",
+    "policy.renotify",
+    "policy.monitor.polling.failed.notification.timer.seconds",
+    "policy.monitor.polling.failed.notification.status",
+    "policy.renotification.timer.seconds",
+    "policy.actions",
+    "policy.suppress.action",
+    "policy.archived",
+    "policy.creation.time",
+    "policy.state",
+    "_type",
+    "id"
+  ],
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "policy.context": {
+            "properties": {
+              "data.point": {
+                "enum": ["event.source", "event.category", "message", "event.source.type", "event.severity"]
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "policy.context": {
+            "properties": {
+              "aggregator": {
+                "enum": ["count"]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "policy.context": {
+            "properties": {
+              "evaluation.window": {
+                "type": "number"
+              },
+              "evaluation.window.unit": {
+                "type": "string"
+              },
+              "evaluation.frequency": {
+                "type": "number"
+              },
+              "evaluation.frequency.unit": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "policy.context": {
+            "properties": {
+              "evaluation.window": {
+                "const": {
+                  "$data": "1/policy.context/evaluation.frequency"
+                }
+              },
+              "evaluation.window.unit": {
+                "const": {
+                  "$data": "1/policy.context/evaluation.frequency.unit"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

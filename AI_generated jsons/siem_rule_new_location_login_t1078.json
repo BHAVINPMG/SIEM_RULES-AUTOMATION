@@ -1,0 +1,76 @@
+{
+  "policy.name": "Initial Access - Login Attempt from New Location (T1078)",
+  "policy.type": "Log",
+  "policy.tags": [
+    "Default",
+    "Security",
+    "Initial Access",
+    "T1078",
+    "TA0001",
+    "Geolocation",
+    "Anomaly Detection"
+  ],
+  "policy.scheduled": "no",
+  "policy.context": {
+    "entity.type": "event.source.type",
+    "entities": [
+      "Security"
+    ],
+    "data.point": "message",
+    "aggregator": "count",
+    "operator": ">=",
+    "value": 1,
+    "trigger.mode": "individual",
+    "evaluation.window": 5,
+    "evaluation.window.unit": "minute",
+    "evaluation.frequency": 5,
+    "evaluation.frequency.unit": "minute",
+    "policy.severity": "WARNING",
+    "policy.result.by": [
+      "event.source"
+    ],
+    "policy.trigger.occurrences": 1,
+    "policy.auto.clear.timer.seconds": 0,
+    "filters": {
+      "data.filter": {
+        "operator": "and",
+        "filter": "include",
+        "groups": [
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "source",
+                "operator": "=",
+                "value": "abnormal-security"
+              },
+              {
+                "operand": "@service",
+                "operator": "=",
+                "value": "abnormal-security-audit-logs"
+              },
+              {
+                "operand": "@evt.name",
+                "operator": "=",
+                "value": "login"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "policy.email.notification.recipients": [],
+  "policy.renotify": "yes",
+  "policy.monitor.polling.failed.notification.timer.seconds": 0,
+  "policy.monitor.polling.failed.notification.status": "no",
+  "policy.renotification.timer.seconds": 0,
+  "policy.actions": {},
+  "policy.suppress.action": "no",
+  "policy.archived": "no",
+  "policy.creation.time": 1735188945,
+  "policy.state": "no",
+  "_type": "1",
+  "id": 10000000000038
+}
