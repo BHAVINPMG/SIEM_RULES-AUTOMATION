@@ -7,7 +7,8 @@
     "Authentication",
     "T1098",
     "TA0004",
-    "Windows"
+    "Windows",
+    "PrivilegeEscalation"
   ],
   "policy.scheduled": "no",
   "policy.context": {
@@ -40,19 +41,35 @@
             "operator": "and",
             "conditions": [
               {
-                "operand": "@ocsf.class_uid",
-                "operator": "in",
-                "value": "3005,3006"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Microsoft-Windows-Security-Auditing"
               },
               {
-                "operand": "@ocsf.activity_name",
-                "operator": "=",
-                "value": "Assign Privileges"
+                "operand": "message",
+                "operator": "contains",
+                "value": "An attempt was made to assign the requested privileges"
+              }
+            ]
+          },
+          {
+            "filter": "include",
+            "operator": "or",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "SeDebugPrivilege"
               },
               {
-                "operand": "@ocsf.privileges",
-                "operator": "=",
-                "value": "ADMIN_PRIVILEGES_ASSIGNED"
+                "operand": "message",
+                "operator": "contains",
+                "value": "SeSecurityPrivilege"
+              },
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "SeTcbPrivilege"
               }
             ]
           }

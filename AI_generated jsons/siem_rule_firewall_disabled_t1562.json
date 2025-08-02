@@ -7,7 +7,8 @@
     "Defense Evasion",
     "T1562",
     "TA0005",
-    "Windows"
+    "Windows",
+    "Firewall"
   ],
   "policy.scheduled": "no",
   "policy.context": {
@@ -40,19 +41,30 @@
             "operator": "and",
             "conditions": [
               {
-                "operand": "source",
-                "operator": "=",
-                "value": "windows.events"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Microsoft-Windows-Windows Firewall With Advanced Security/Firewall"
               },
               {
-                "operand": "@evt.id",
-                "operator": "=",
-                "value": "4950"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Windows Firewall configuration has changed"
+              }
+            ]
+          },
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "Configuration Type = Enable Firewall"
               },
               {
-                "operand": "@Event.EventData.Data.SettingValue",
-                "operator": "=",
-                "value": "No"
+                "operand": "message",
+                "operator": "contains",
+                "value": "New Setting = No"
               }
             ]
           }

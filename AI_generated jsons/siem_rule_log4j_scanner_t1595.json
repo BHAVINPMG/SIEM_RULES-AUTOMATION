@@ -1,5 +1,5 @@
 {
-  "policy.name": "Reconnaissance - Log4j Scanner Detected in User Agent (T1595)",
+  "policy.name": "Reconnaissance - Log4j Vulnerability Scanner Detection (T1595)",
   "policy.type": "Log",
   "policy.tags": [
     "Default",
@@ -7,15 +7,14 @@
     "Reconnaissance",
     "T1595",
     "TA0043",
-    "Log4j",
-    "Vulnerability Scanning"
+    "Web",
+    "Log4j"
   ],
   "policy.scheduled": "no",
   "policy.context": {
     "entity.type": "event.source.type",
     "entities": [
-      "Apache",
-      "Nginx"
+      "Web"
     ],
     "data.point": "message",
     "aggregator": "count",
@@ -34,47 +33,43 @@
     "policy.auto.clear.timer.seconds": 0,
     "filters": {
       "data.filter": {
-        "operator": "or",
+        "operator": "and",
         "filter": "include",
         "groups": [
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "GET"
+              },
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "HTTP/1.1"
+              }
+            ]
+          },
           {
             "filter": "include",
             "operator": "or",
             "conditions": [
               {
-                "operand": "source",
-                "operator": "in",
-                "value": "apache,nginx"
+                "operand": "message",
+                "operator": "contains",
+                "value": "${jndi:ldap://"
               },
               {
-                "operand": "@http.referer",
+                "operand": "message",
                 "operator": "contains",
-                "value": "jndi:ldap"
+                "value": "${jndi:rmi://"
               },
               {
-                "operand": "@http.referer",
+                "operand": "message",
                 "operator": "contains",
-                "value": "jndi:rmi"
-              },
-              {
-                "operand": "@http.referer",
-                "operator": "contains",
-                "value": "jndi:dns"
-              },
-              {
-                "operand": "@http.user_agent",
-                "operator": "contains",
-                "value": "jndi:ldap"
-              },
-              {
-                "operand": "@http.user_agent",
-                "operator": "contains",
-                "value": "jndi:rmi"
-              },
-              {
-                "operand": "@http.user_agent",
-                "operator": "contains",
-                "value": "jndi:dns"
+                "value": "${jndi:dns://"
               }
             ]
           }
@@ -93,5 +88,5 @@
   "policy.creation.time": 1735188945,
   "policy.state": "no",
   "_type": "1",
-  "id": 10000000000037
+  "id": 10000000000035
 }

@@ -1,5 +1,5 @@
 {
-  "policy.name": "Credential Access - Brute Force Attack Detected (T1110)",
+  "policy.name": "Credential Access - Brute Force Attack Detection (T1110)",
   "policy.type": "Log",
   "policy.tags": [
     "Default",
@@ -7,7 +7,8 @@
     "Authentication",
     "T1110",
     "TA0006",
-    "Windows"
+    "Windows",
+    "BruteForce"
   ],
   "policy.scheduled": "no",
   "policy.context": {
@@ -20,9 +21,9 @@
     "operator": ">=",
     "value": 10,
     "trigger.mode": "individual",
-    "evaluation.window": 15,
+    "evaluation.window": 5,
     "evaluation.window.unit": "minute",
-    "evaluation.frequency": 15,
+    "evaluation.frequency": 5,
     "evaluation.frequency.unit": "minute",
     "policy.severity": "MAJOR",
     "policy.result.by": [
@@ -40,19 +41,30 @@
             "operator": "and",
             "conditions": [
               {
-                "operand": "@ocsf.class_uid",
-                "operator": "=",
-                "value": "3002"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Microsoft-Windows-Security-Auditing"
               },
               {
-                "operand": "@ocsf.activity_name",
-                "operator": "=",
-                "value": "Logon"
+                "operand": "message",
+                "operator": "contains",
+                "value": "An account failed to log on"
+              }
+            ]
+          },
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "Failure Reason: Unknown user name or bad password"
               },
               {
-                "operand": "@ocsf.status",
-                "operator": "=",
-                "value": "Failure"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Status: 0xC000006D"
               }
             ]
           }
@@ -71,5 +83,6 @@
   "policy.creation.time": 1735188945,
   "policy.state": "no",
   "_type": "1",
-  "id": 10000000000032
+  "id": 10000000000030
+}
 }

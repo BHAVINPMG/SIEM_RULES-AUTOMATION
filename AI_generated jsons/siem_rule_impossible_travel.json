@@ -1,29 +1,31 @@
 {
-  "policy.name": "Authentication - Detected Login from Two IPs with Impossible Travel Time",
+  "policy.name": "Lateral Movement - Impossible Travel Detection (T1078)",
   "policy.type": "Log",
   "policy.tags": [
     "Default",
     "Security",
-    "Authentication",
-    "Impossible Travel",
-    "Geolocation"
+    "Lateral Movement",
+    "T1078",
+    "TA0008",
+    "Windows",
+    "ImpossibleTravel"
   ],
   "policy.scheduled": "no",
   "policy.context": {
     "entity.type": "event.source.type",
     "entities": [
-      "Application"
+      "Windows"
     ],
     "data.point": "message",
     "aggregator": "count",
     "operator": ">=",
-    "value": 1,
+    "value": 2,
     "trigger.mode": "individual",
-    "evaluation.window": 60,
+    "evaluation.window": 10,
     "evaluation.window.unit": "minute",
-    "evaluation.frequency": 60,
+    "evaluation.frequency": 10,
     "evaluation.frequency.unit": "minute",
-    "policy.severity": "CRITICAL",
+    "policy.severity": "MAJOR",
     "policy.result.by": [
       "event.source"
     ],
@@ -39,19 +41,30 @@
             "operator": "and",
             "conditions": [
               {
-                "operand": "@bottomline.mainframe.activity.resource.code",
-                "operator": "=",
-                "value": "login"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Microsoft-Windows-Security-Auditing"
               },
               {
-                "operand": "@bottomline.mainframe.activity.usr.id",
+                "operand": "message",
                 "operator": "contains",
-                "value": "*"
+                "value": "An account was successfully logged on"
+              }
+            ]
+          },
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "Logon Type: 10"
               },
               {
-                "operand": "@network.client.geoip",
+                "operand": "message",
                 "operator": "contains",
-                "value": "*"
+                "value": "Source Network Address:"
               }
             ]
           }
@@ -70,5 +83,5 @@
   "policy.creation.time": 1735188945,
   "policy.state": "no",
   "_type": "1",
-  "id": 10000000000035
+  "id": 10000000000038
 }

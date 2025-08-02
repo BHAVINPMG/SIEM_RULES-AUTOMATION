@@ -20,7 +20,7 @@ Detects login attempts from new or unusual geographic locations, which could ind
 
 ### Context Configuration
 - **entity.type**: "event.source.type"
-- **entities**: ["Security"]
+- **entities**: ["Windows"]
 - **data.point**: "message"
 - **aggregator**: "count"
 - **operator**: ">="

@@ -1,20 +1,20 @@
 {
-  "policy.name": "Initial Access - Login Attempt from New Location (T1078)",
+  "policy.name": "Lateral Movement - New Location Login Detected (T1078)",
   "policy.type": "Log",
   "policy.tags": [
     "Default",
     "Security",
-    "Initial Access",
+    "Lateral Movement",
     "T1078",
-    "TA0001",
-    "Geolocation",
-    "Anomaly Detection"
+    "TA0008",
+    "Windows",
+    "Authentication"
   ],
   "policy.scheduled": "no",
   "policy.context": {
     "entity.type": "event.source.type",
     "entities": [
-      "Security"
+      "Windows"
     ],
     "data.point": "message",
     "aggregator": "count",
@@ -41,19 +41,30 @@
             "operator": "and",
             "conditions": [
               {
-                "operand": "source",
-                "operator": "=",
-                "value": "abnormal-security"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Microsoft-Windows-Security-Auditing"
               },
               {
-                "operand": "@service",
-                "operator": "=",
-                "value": "abnormal-security-audit-logs"
+                "operand": "message",
+                "operator": "contains",
+                "value": "An account was successfully logged on"
+              }
+            ]
+          },
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "Logon Type: 3"
               },
               {
-                "operand": "@evt.name",
-                "operator": "=",
-                "value": "login"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Source Network Address:"
               }
             ]
           }
@@ -72,5 +83,6 @@
   "policy.creation.time": 1735188945,
   "policy.state": "no",
   "_type": "1",
-  "id": 10000000000038
+  "id": 10000000000036
+}
 }

@@ -1,14 +1,14 @@
 {
-  "policy.name": "Persistence - Windows Domain Admin Group Changed (T1098)",
+  "policy.name": "Privilege Escalation - Domain Admin Group Membership Changed (T1098)",
   "policy.type": "Log",
   "policy.tags": [
     "Default",
     "Security",
-    "Persistence",
+    "Authentication",
     "T1098",
-    "TA0003",
+    "TA0004",
     "Windows",
-    "Domain Admin"
+    "PrivilegeEscalation"
   ],
   "policy.scheduled": "no",
   "policy.context": {
@@ -41,19 +41,30 @@
             "operator": "and",
             "conditions": [
               {
-                "operand": "source",
-                "operator": "=",
-                "value": "windows.events"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Microsoft-Windows-Security-Auditing"
               },
               {
-                "operand": "@evt.id",
-                "operator": "=",
-                "value": "4737"
+                "operand": "message",
+                "operator": "contains",
+                "value": "A member was added to a security-enabled global group"
+              }
+            ]
+          },
+          {
+            "filter": "include",
+            "operator": "or",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "Group Name: Domain Admins"
               },
               {
-                "operand": "@Event.EventData.Data.TargetUserName",
-                "operator": "=",
-                "value": "Domain Admins"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Group ID: S-1-5-21-3623811015-3361044348-30300820-512"
               }
             ]
           }
@@ -72,5 +83,6 @@
   "policy.creation.time": 1735188945,
   "policy.state": "no",
   "_type": "1",
-  "id": 10000000000036
+  "id": 10000000000033
+}
 }

@@ -20,7 +20,7 @@ Detects unusual 1Password item usage patterns that could indicate credential har
 
 ### Context Configuration
 - **entity.type**: "event.source.type"
-- **entities**: ["1Password"]
+- **entities**: ["Linux,Windows"]
 - **data.point**: "message"
 - **aggregator**: "count"
 - **operator**: ">="

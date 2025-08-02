@@ -1,5 +1,5 @@
 {
-  "policy.name": "Privilege Escalation - Windows RottenPotato Attack Pattern (T1557)",
+  "policy.name": "Privilege Escalation - Rotten Potato Attack Detection (T1557)",
   "policy.type": "Log",
   "policy.tags": [
     "Default",
@@ -7,7 +7,8 @@
     "Privilege Escalation",
     "T1557",
     "TA0004",
-    "Windows"
+    "Windows",
+    "RottenPotato"
   ],
   "policy.scheduled": "no",
   "policy.context": {
@@ -40,29 +41,51 @@
             "operator": "and",
             "conditions": [
               {
-                "operand": "source",
-                "operator": "=",
-                "value": "windows.events"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Microsoft-Windows-Security-Auditing"
               },
               {
-                "operand": "@evt.id",
-                "operator": "=",
-                "value": "4624"
+                "operand": "message",
+                "operator": "contains",
+                "value": "A logon was attempted using explicit credentials"
+              }
+            ]
+          },
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "Account For Which Logon Failed: Security ID: S-1-0-0 Account Name: SYSTEM"
               },
               {
-                "operand": "@network.client.ip",
-                "operator": "=",
-                "value": "127.0.0.1"
+                "operand": "message",
+                "operator": "contains",
+                "value": "Target Server Name: localhost"
+              }
+            ]
+          },
+          {
+            "filter": "include",
+            "operator": "or",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "potato.exe"
               },
               {
-                "operand": "@Event.EventData.Data.LogonType",
-                "operator": "=",
-                "value": "3"
+                "operand": "message",
+                "operator": "contains",
+                "value": "rotten.exe"
               },
               {
-                "operand": "@Event.EventData.Data.TargetUserName",
-                "operator": "=",
-                "value": "ANONYMOUS LOGON"
+                "operand": "message",
+                "operator": "contains",
+                "value": "juicy_potato.exe"
               }
             ]
           }
@@ -81,5 +104,5 @@
   "policy.creation.time": 1735188945,
   "policy.state": "no",
   "_type": "1",
-  "id": 10000000000033
+  "id": 10000000000037
 }
