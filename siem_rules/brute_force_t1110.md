@@ -13,14 +13,15 @@ Detects brute force authentication attacks where multiple failed login attempts 
 ### Required Policy Fields
 - **policy.name**: "Credential Access - Brute Force Attack Detected (T1110)"
 - **policy.type**: "Log"
-- **policy.tags**: ["Default", "Security", "Authentication", "T1110", "TA0006", "Windows"]
+- **policy.description**: "Detects brute force authentication attacks with multiple failed login attempts"
+- **policy.tags**: ["Default", "Security", "Authentication", "T1110", "TA0006"]
 - **policy.scheduled**: "no"
-- **policy.severity**: "MAJOR"
-- **id**: 10000000000032
+- **log.policy.type**: "threshold"
 
 ### Context Configuration
 - **entity.type**: "event.source.type"
-- **entities**: ["Windows"]
+- **policy.severity**: "MAJOR"
+- **entities**: ["Windows", "Linux"]
 - **data.point**: "message"
 - **aggregator**: "count"
 - **operator**: ">="
@@ -28,7 +29,7 @@ Detects brute force authentication attacks where multiple failed login attempts 
 - **trigger.mode**: "individual"
 - **evaluation.window**: 15
 - **evaluation.window.unit**: "minute"
-- **evaluation.frequency**: 15
+- **evaluation.frequency**: 1
 - **evaluation.frequency.unit**: "minute"
 - **policy.result.by**: ["event.source"]
 
@@ -37,17 +38,14 @@ Detects brute force authentication attacks where multiple failed login attempts 
 - **operand**: "@ocsf.activity_name", **operator**: "=", **value**: "Logon"
 - **operand**: "@ocsf.status", **operator**: "=", **value**: "Failure"
 
-### Static Fields (Always Same)
-- **policy.trigger.occurrences**: 1
-- **policy.auto.clear.timer.seconds**: 0
-- **policy.email.notification.recipients**: []
-- **policy.renotify**: "yes"
-- **policy.monitor.polling.failed.notification.timer.seconds**: 0
-- **policy.monitor.polling.failed.notification.status**: "no"
-- **policy.renotification.timer.seconds**: 0
-- **policy.actions**: {}
+### Actions and Settings
+- **policy.actions**: {
+  "Notification": {
+    "Email": {},
+    "channels": {}
+  },
+  "Integration": {}
+}
+- **policy.renotify**: "no"
 - **policy.suppress.action**: "no"
-- **policy.archived**: "no"
-- **policy.state**: "no"
-- **_type**: "1"
-- **policy.creation.time**: Unix timestamp
+- **policy.clear.state**: "no"

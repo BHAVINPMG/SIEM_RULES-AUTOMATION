@@ -1,0 +1,61 @@
+{
+  "policy.name": "Credential Access - Brute Force Attack Detection (T1110)",
+  "policy.type": "Log",
+  "policy.description": "Detects brute force authentication attacks with multiple failed login attempts",
+  "policy.tags": ["Default", "Security", "Authentication", "T1110", "TA0006", "Windows", "Linux"],
+  "policy.scheduled": "no",
+  "policy.context": {
+    "entity.type": "event.source.type",
+    "policy.severity": "CRITICAL",
+    "entities": ["Windows", "Linux"],
+    "data.point": "message",
+    "aggregator": "count",
+    "operator": ">=",
+    "value": 10,
+    "trigger.mode": "individual",
+    "evaluation.window": 15,
+    "evaluation.window.unit": "minute",
+    "evaluation.frequency": 1,
+    "evaluation.frequency.unit": "minute",
+    "policy.result.by": ["event.source", "source.ip"],
+    "policy.trigger.occurrences": 1,
+    "policy.auto.clear.timer.seconds": 0,
+    "filters": {
+      "data.filter": {
+        "operator": "and",
+        "filter": "include",
+        "groups": [
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contain",
+                "value": "unsuccessful"
+              },
+              {
+                "operand": "message",
+                "operator": "contain",
+                "value": "login"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "log.policy.type": "threshold"
+  },
+  "policy.email.notification.recipients": [],
+  "policy.renotify": "yes",
+  "policy.monitor.polling.failed.notification.timer.seconds": 0,
+  "policy.monitor.polling.failed.notification.status": "no",
+  "policy.renotification.timer.seconds": 0,
+  "policy.actions": {},
+  "policy.suppress.action": "no",
+  "policy.archived": "no",
+  "policy.creation.time": 1685346204,
+  "policy.state": "no",
+  "_type": "1",
+  "id": 10000000000042
+} 

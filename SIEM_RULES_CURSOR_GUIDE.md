@@ -19,31 +19,59 @@ This project contains SIEM (Security Information and Event Management) rules in 
 ### Required Fields
 - `policy.name`: Descriptive name for the rule
 - `policy.type`: Always "Log"
-- `policy.tags`: Array of relevant tags (e.g., ["Default", "Security", "Linux"])
-- `policy.scheduled`: Always "no"
+- `policy.description`: Description of the rule
+- `policy.tags`: Array of tags for categorizing the policy
+- `policy.scheduled`: Can be "yes" or "no"
+- `scheduler.job.type`: Always "Event Policy" (when scheduled)
+- `scheduler.start.date`: Date in format "DD-MM-YYYY" (when scheduled)
+- `scheduler.times`: Array of time strings in format "HH:MM" (when scheduled)
+- `scheduler.timeline`: Can be "Once" or other values (when scheduled)
 - `policy.context`: Complete context object with all required sub-fields
 - `policy.trigger.occurrences`: Always 1
 - `policy.auto.clear.timer.seconds`: Always 0
-- `policy.email.notification.recipients`: Always empty array []
+- `policy.actions`: Always empty object {}
 - `policy.renotify`: Always "yes"
+- `policy.suppress.action`: Always "no"
+- `log.policy.type`: Type identifier for the policy (e.g., "new-value", "impossible-travel", "threshold")
+- `policy.email.notification.recipients`: Always empty array []
 - `policy.monitor.polling.failed.notification.timer.seconds`: Always 0
 - `policy.monitor.polling.failed.notification.status`: Always "no"
 - `policy.renotification.timer.seconds`: Always 0
-- `policy.actions`: Always empty object {}
-- `policy.suppress.action`: Always "no"
 - `policy.archived`: Always "no"
+- `policy.creation.time`: Unix timestamp of policy creation
 - `policy.state`: Always "no"
 - `_type`: Always "1"
-- `id`: Unique numeric identifier (format: 100000000000XX)
+- `id`: Unique identifier in format 100000000000XX
 
 ### Context Configuration
 - `entity.type`: Must be one of ["event.source.type", "group", "event.source"]
+- `policy.severity`: Use "WARNING", "MAJOR", or "CRITICAL" based on impact
+- `entities`: Array of entity identifiers (can be empty)
 - `data.point`: Must be one of ["event.source", "event.category", "message", "event.source.type", "event.severity"]
-- `aggregator`: Use "count" for most cases, "sum"/"avg" only when appropriate
+- `aggregator`: Use "count" for most cases, "sum"/"avg" only when appropriate (for threshold types)
 - `operator`: Choose appropriate comparison operator ("=", ">=", "<=", ">", "<", "contains", "in", "start with", "end with", "range")
 - For "range" operator, use string format "min#max" (e.g., "10#20")
-- `trigger.mode`: Always "individual"
-- `policy.severity`: Use "WARNING", "MAJOR", or "CRITICAL" based on impact
+- `location.attribute`: Used for impossible travel detection (e.g., "imp")
+- `trigger.mode`: Can be "individual" or "combined"
+- `evaluation.window`: Time window for evaluation
+- `evaluation.window.unit`: Unit for evaluation window ("minute", "hour", "day")
+- `evaluation.frequency`: Frequency of evaluation
+- `evaluation.frequency.unit`: Unit for evaluation frequency ("minute", "hour", "day")
+- `aggregate.for.days`: Number of days to aggregate data (for some policy types)
+- `forget.value`: Forget value for data retention
+- `policy.result.by`: Fields to group results by
+- `log.policy.type`: Type identifier for the policy
+
+### Event Source Types
+When `entity.type` is "event.source.type", the `entities` array can contain any of the following values:
+- **Operating Systems**: "Windows", "Linux"
+- **Cloud Platforms**: "AWS CloudTrail", "Azure Monitor", "Google Cloud Logging"
+- **Web Servers**: "Apache", "Nginx", "IIS"
+- **Databases**: "MySQL", "PostgreSQL", "MSSQL", "Oracle", "MongoDB", "Redis"
+- **Message Queues**: "RabbitMQ", "Kafka"
+- **Container Platforms**: "Docker", "Kubernetes"
+- **Virtualization**: "VMware", "Hyper-V", "Citrix"
+- **Network Devices**: "Cisco", "Fortinet", "Palo Alto", "SonicWall", "Aruba", "Ruckus"
 
 ### Filter Configuration
 - Use the exact filter structure as defined in the schema
@@ -52,7 +80,7 @@ This project contains SIEM (Security Information and Event Management) rules in 
 
 #### Filter Condition Operators
 - **=** - Exact match
-- **contains** - Contains the specified value
+- **contains/contain** - Contains the specified value
 - **in** - Value is in a list/array
 - **start with** - Starts with the specified value
 - **end with** - Ends with the specified value
@@ -103,7 +131,7 @@ This project contains SIEM (Security Information and Event Management) rules in 
 6. **Conditions**: Array of condition objects with `operand`, `operator`, and `value`
 7. **Condition constraints**: Maximum 3 conditions per group
 8. **Operand**: Must be valid field name from dataset schema
-9. **Condition operators**: Only `"="`, `"contains"`, `"in"`, `"start with"`, `"end with"` allowed
+9. **Condition operators**: Only `"="`, `"contains"`, `"contain"`, `"in"`, `"start with"`, `"end with"` allowed
 10. **Value types**: Must be `string`, `number`, or `boolean`
 11. **Field naming**: Use dot notation for nested fields (e.g., `"source.ip"`)
 12. **Nesting**: Groups can be nested within groups following same structure
@@ -113,40 +141,48 @@ This project contains SIEM (Security Information and Event Management) rules in 
 ### Validation Rules
 - When `data.point` is "event.source", "event.category", "message", "event.source.type", or "event.severity", `aggregator` must be "count"
 - All numeric fields should have appropriate minimum values
-- Evaluation window and frequency cannot exceed 7 days (10080 minutes)
 - Evaluation window and frequency values and units must always be equal
-- Timestamps should be Unix timestamps
+- When `policy.scheduled` is "yes", all scheduler fields must be provided
+- `log.policy.type` must be one of the supported types: "new-value", "impossible-travel", "threshold"
+- `trigger.mode` can be "individual" or "combined"
+- `policy.actions` must contain Notification and Integration objects
 
 ## Code Generation Guidelines
 
 ### Creating New SIEM Rules
 1. Use the schema as a template
-2. Generate unique IDs in format 100000000000XX (increment from existing rules)
-3. Set appropriate severity based on the security impact
-4. Configure filters to match specific log patterns
-5. Set evaluation windows and frequencies appropriately (max 7 days, values and units must be equal)
+2. Set appropriate severity based on the security impact
+3. Configure filters to match specific log patterns
+4. Set evaluation windows and frequencies appropriately
+5. Choose appropriate `log.policy.type` based on the rule purpose:
+   - `"new-value"` for general monitoring
+   - `"impossible-travel"` for geographic anomaly detection
+   - `"threshold"` for count-based monitoring
+6. Configure scheduling if needed (scheduler fields)
+7. Set up appropriate actions for notifications and integrations
 
-### Example Rule Structure
+### Example Rule Structure (threshold type)
 ```json
 {
-  "policy.name": "Category - Specific Event",
+  "policy.name": "Threshold Monitoring Example",
   "policy.type": "Log",
-  "policy.tags": ["Default", "Security"],
+  "policy.tags": ["Security", "Monitoring"],
+  "policy.description": "Monitor for specific threshold events",
   "policy.scheduled": "no",
   "policy.context": {
     "entity.type": "event.source.type",
-    "entities": ["Linux"],
+    "policy.severity": "MAJOR",
+    "entities": ["AWS Auto Scaling"],
     "data.point": "message",
     "aggregator": "count",
-    "operator": ">=",
-    "value": 1,
+    "operator": "=",
+    "value": 40,
     "trigger.mode": "individual",
     "evaluation.window": 5,
     "evaluation.window.unit": "minute",
-    "evaluation.frequency": 5,
+    "evaluation.frequency": 1,
     "evaluation.frequency.unit": "minute",
-    "policy.severity": "WARNING",
-    "policy.result.by": ["event.source"],
+    "policy.result.by": ["event.severity"],
     "policy.trigger.occurrences": 1,
     "policy.auto.clear.timer.seconds": 0,
     "filters": {
@@ -159,15 +195,16 @@ This project contains SIEM (Security Information and Event Management) rules in 
             "operator": "and",
             "conditions": [
               {
-                "operand": "message",
+                "operand": "event.source.type",
                 "operator": "contain",
-                "value": "specific pattern"
+                "value": "aa"
               }
             ]
           }
         ]
       }
-    }
+    },
+    "log.policy.type": "threshold"
   },
   "policy.email.notification.recipients": [],
   "policy.renotify": "yes",
@@ -177,10 +214,10 @@ This project contains SIEM (Security Information and Event Management) rules in 
   "policy.actions": {},
   "policy.suppress.action": "no",
   "policy.archived": "no",
-  "policy.creation.time": 1685348945,
+  "policy.creation.time": 1685346204,
   "policy.state": "no",
   "_type": "1",
-  "id": 10000000000031
+  "id": 10000000000041
 }
 ```
 
@@ -230,6 +267,10 @@ When generating SIEM rules from user descriptions, gather:
 - **Network**: source.ip, dest.ip, source.port, dest.port, protocol
 - **System**: process.name, process.pid, file.path, service.name
 - **Application**: http.status, http.method, url.path, user.agent
+- **Cloud**: aws.account, azure.tenant, gcp.project, cloud.region
+- **Database**: db.name, db.user, db.query, db.table
+- **Container**: container.name, pod.name, namespace, image.name
+- **Network Device**: device.name, interface.name, vlan.id, routing.table
 
 ### Severity Guidelines
 - **WARNING**: Low impact, informational alerts
@@ -241,12 +282,28 @@ When generating SIEM rules from user descriptions, gather:
 - **Network Scanning**: 1-5 minutes  
 - **System Changes**: 1-60 minutes
 - **File Access**: 1-30 minutes
+- **Impossible Travel**: 2-5 minutes (for geographic anomaly detection)
+- **Threshold Monitoring**: 1-10 minutes (for count-based alerts)
 
-### Tag Recommendations
-- Always include: ["Default", "Security"]
-- Add specific tags: ["Authentication", "Network", "System", "Application"]
-- Add OS tags: ["Linux", "Windows"] as appropriate
-- Add MITRE ATT&CK tags: ["T1110", "T1078", "T1021"] as relevant
+### Policy Type Requirements
+
+#### **threshold** Policy Type
+- **Required fields**: `aggregator`, `operator`, `value`, `policy.result.by`
+- **Use case**: Count-based monitoring with specific thresholds
+- **Example**: Monitor for ≥40 events in 5 minutes
+
+#### **new-value** Policy Type  
+- **Required fields**: `aggregate.for.days`, `forget.value`, `policy.result.by`
+- **Use case**: General monitoring with data retention settings
+- **Example**: Monitor event categories with 1-day aggregation
+
+#### **impossible-travel** Policy Type
+- **Required fields**: `location.attribute`
+- **Use case**: Geographic anomaly detection
+- **Example**: Detect logins from impossible locations
+
+#### **Scheduling**: Use scheduler fields when `policy.scheduled` is "yes"
+#### **Actions**: Configure Notification and Integration objects based on requirements
 
 ### MITRE ATT&CK Integration
 When users provide MITRE technique context, incorporate:

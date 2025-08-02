@@ -2817,7 +2817,7 @@
           "policy.state": "no",
           "_type": "1",
           "id": 10000000000041
-        },
+        }, 
         {
           "policy.name": "Syslog - SSHD authentication failed",
           "policy.type": "Log",

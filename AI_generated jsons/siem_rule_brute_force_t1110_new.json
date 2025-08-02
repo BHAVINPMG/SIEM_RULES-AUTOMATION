@@ -1,0 +1,65 @@
+{
+  "policy.name": "Credential Access - Brute Force Attack Detected (T1110)",
+  "policy.type": "Log",
+  "policy.description": "Detects brute force authentication attacks with multiple failed login attempts within a short time window, indicating potential credential stuffing or password spraying attacks.",
+  "policy.tags": ["Default", "Security", "Authentication", "T1110", "TA0006"],
+  "policy.scheduled": "no",
+  "policy.context": {
+    "policy.severity": "MAJOR",
+    "entities": ["Windows", "Linux"],
+    "entity.type": "event.source.type",
+    "data.point": "message",
+    "aggregator": "count",
+    "operator": ">=",
+    "value": 10,
+    "trigger.mode": "individual",
+    "evaluation.window": 15,
+    "evaluation.window.unit": "minute",
+    "evaluation.frequency": 15,
+    "evaluation.frequency.unit": "minute",
+    "policy.trigger.occurrences": 1,
+    "policy.auto.clear.timer.seconds": 0,
+    "filters": {
+      "data.filter": {
+        "operator": "and",
+        "filter": "include",
+        "groups": [
+          {
+            "filter": "include",
+            "operator": "and",
+            "conditions": [
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "An account failed to log on"
+              },
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "Failure Reason: Unknown user name or bad password"
+              },
+              {
+                "operand": "message",
+                "operator": "contains",
+                "value": "Microsoft-Windows-Security-Auditing[3002]"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "log.policy.type": "threshold"
+  },
+  "policy.email.notification.recipients": [],
+  "policy.renotify": "yes",
+  "policy.monitor.polling.failed.notification.timer.seconds": 0,
+  "policy.monitor.polling.failed.notification.status": "no",
+  "policy.renotification.timer.seconds": 0,
+  "policy.actions": {},
+  "policy.suppress.action": "no",
+  "policy.archived": "no",
+  "policy.creation.time": 1704758400,
+  "policy.state": "no",
+  "_type": "1",
+  "id": 10000000000001
+} 
